@@ -55,17 +55,20 @@ function renderNews() {
   if (news === null) { box.innerHTML = `<p class="note">${T("読み込み中…", "Loading…")}</p>`; return; }
   if (news === "error") { box.innerHTML = `<p class="note">${T("お知らせを読めませんでした。", "Could not load the news.")}</p>`; return; }
   if (!news.length) { box.innerHTML = `<p class="note">${T("まだありません。", "Nothing yet.")}</p>`; return; }
-  box.innerHTML = news.map(n => {
+  box.innerHTML = news.map((n, i) => {
     // 英語のときは英語の欄（title_en・body_en）。空なら日本語のまま
     const title = lang === "en" && n.title_en ? n.title_en : n.title;
     const body = lang === "en" && n.body_en ? n.body_en : n.body;
     const head = n.kind === "update" && n.version ? T("バージョン ", "Version ") + n.version : title;
     const lines = String(body || "").split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-    return `<div class="card news-item">
-      <h3><span>${esc(head)}</span><span class="date">${esc(n.published_at || "")}</span></h3>
-      ${n.kind === "update" && title ? `<p class="title">${esc(title)}</p>` : ""}
+    // 折りたたみ：一番新しいものだけ開く。見出しを押すと開け閉め（ゲームのお知らせと同じ）
+    return `<details class="card news-item"${i === 0 ? " open" : ""}>
+      <summary>
+        <h3><span>${esc(head)}</span><span class="date">${esc(n.published_at || "")}<span class="fold"></span></span></h3>
+        ${n.kind === "update" && title ? `<p class="title">${esc(title)}</p>` : ""}
+      </summary>
       <ul>${lines.map(l => `<li>${esc(l)}</li>`).join("")}</ul>
-    </div>`;
+    </details>`;
   }).join("") + (lang === "en" && news.some(n => !n.body_en) ? `<p class="note">Some news is only available in Japanese.</p>` : "");
 }
 
