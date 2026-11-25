@@ -56,14 +56,17 @@ function renderNews() {
   if (news === "error") { box.innerHTML = `<p class="note">${T("お知らせを読めませんでした。", "Could not load the news.")}</p>`; return; }
   if (!news.length) { box.innerHTML = `<p class="note">${T("まだありません。", "Nothing yet.")}</p>`; return; }
   box.innerHTML = news.map(n => {
-    const head = n.kind === "update" && n.version ? T("バージョン ", "Version ") + n.version : n.title;
-    const lines = String(n.body || "").split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    // 英語のときは英語の欄（title_en・body_en）。空なら日本語のまま
+    const title = lang === "en" && n.title_en ? n.title_en : n.title;
+    const body = lang === "en" && n.body_en ? n.body_en : n.body;
+    const head = n.kind === "update" && n.version ? T("バージョン ", "Version ") + n.version : title;
+    const lines = String(body || "").split(/\r?\n/).map(s => s.trim()).filter(Boolean);
     return `<div class="card news-item">
       <h3><span>${esc(head)}</span><span class="date">${esc(n.published_at || "")}</span></h3>
-      ${n.kind === "update" && n.title ? `<p class="title">${esc(n.title)}</p>` : ""}
+      ${n.kind === "update" && title ? `<p class="title">${esc(title)}</p>` : ""}
       <ul>${lines.map(l => `<li>${esc(l)}</li>`).join("")}</ul>
     </div>`;
-  }).join("") + (lang === "en" ? `<p class="note">The news is written in Japanese.</p>` : "");
+  }).join("") + (lang === "en" && news.some(n => !n.body_en) ? `<p class="note">Some news is only available in Japanese.</p>` : "");
 }
 
 async function load() {
@@ -73,7 +76,7 @@ async function load() {
   } catch (e) { version = null; }
   renderVersion();
   try {
-    news = await get("/rest/v1/vof_notices?select=id,kind,version,title,body,published_at&visible=eq.true&order=published_at.desc,id.desc&limit=20");
+    news = await get("/rest/v1/vof_notices?select=*&visible=eq.true&order=published_at.desc,id.desc&limit=20");
   } catch (e) { news = "error"; }
   renderNews();
 }
