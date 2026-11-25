@@ -78,7 +78,7 @@ main { max-width: 760px; margin: 0 auto; }
   margin-bottom: 14px;
 }
 .job { display: flex; align-items: center; gap: 16px; }
-.job img { width: 96px; height: 96px; flex: none; }
+.job img { height: 150px; width: auto; flex: none; } /* 町の画面の立ち絵 */
 .job h3 { margin: 0; color: var(--gold-hi); }
 .job p { margin: 4px 0 0; }
 .note { text-align: center; color: var(--dim); font-size: 14px; }
