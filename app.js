@@ -84,5 +84,21 @@ async function load() {
   renderNews();
 }
 
+// ---- スクリーンショット：この中から、開くたびにランダムで3枚。増やすときは img/ に置いて、ここに足す ----
+const SHOTS = ["img/shot1.png", "img/shot2.png", "img/shot_skills.png", "img/shot_stats.png"];
+const SHOTS_SHOWN = 3;
+
+function renderShots() {
+  const box = document.getElementById("shot-list");
+  if (!box) return;
+  const pool = SHOTS.slice();
+  for (let i = pool.length - 1; i > 0; i--) { // 混ぜる
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  box.innerHTML = pool.slice(0, SHOTS_SHOWN).map(src => `<a class="shot" href="${src}"><img src="${src}" alt=""></a>`).join("");
+}
+
+renderShots();
 applyLang();
 load();
